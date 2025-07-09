@@ -1,0 +1,179 @@
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.util.*;
+
+class User {
+    private String username;
+    private String password;
+
+    public User(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public boolean checkPassword(String password) {
+        return this.password.equals(password);
+    }
+}
+
+class Reservation {
+    static int nextPNR = 9370;
+    private int pnr;
+    private String username;
+    private String trainNo;
+    private String trainName;
+    private String classType;
+    private LocalDate dateOfJourney;
+    private String from;
+    private String to;
+
+    public Reservation(String username, String trainNo, String trainName, String classType,
+                       LocalDate dateOfJourney, String from, String to) {
+        this.pnr = nextPNR++;
+        this.username = username;
+        this.trainNo = trainNo;
+        this.trainName = trainName;
+        this.classType = classType;
+        this.dateOfJourney = dateOfJourney;
+        this.from = from;
+        this.to = to;
+    }
+
+    public int getPnr() {
+        return pnr;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String toString() {
+        return "PNR: " + pnr + ", Train: " + trainNo + " - " + trainName + ", Class: " + classType +
+               ", Date: " + dateOfJourney + ", From: " + from + ", To: " + to + ", User: " + username;
+    }
+}
+
+public class OnlineReservationSystem {
+    static Scanner sc = new Scanner(System.in);
+    static Map<String, User> users = new HashMap<>();
+    static Map<Integer, Reservation> reservations = new HashMap<>();
+    static Map<String, String> trainData = new HashMap<>();
+
+    public static void main(String[] args) {
+        trainData.put("12345", "Chennai Express");
+        trainData.put("54321", "Rajdhani Express");
+        
+        users.put("Subodh Wasade", new User("Subodh Wasade", "subodh@123"));
+        System.out.println("Welcome to Online Reservation System");
+        User currentUser = null;
+
+        while (currentUser == null) {
+            System.out.print("Enter Login ID: ");
+            String username = sc.nextLine();
+            System.out.print("Enter Password: ");
+            String password = sc.nextLine();
+
+            if (users.containsKey(username) && users.get(username).checkPassword(password)) {
+                currentUser = users.get(username);
+                System.out.println("Login Successful!\n");
+            } else {
+                System.out.println("Invalid credentials. Try again.\n");
+            }
+        }
+
+        while (true) {
+            System.out.println("\n1. Reserve Ticket\n2. Cancel Ticket\n3. View My Reservations\n4. Exit");
+            System.out.print("Choose an option: ");
+            int choice = Integer.parseInt(sc.nextLine());
+
+            switch (choice) {
+                case 1:
+                    reserveTicket(currentUser.getUsername());
+                    break;
+                case 2:
+                    cancelTicket(currentUser.getUsername());
+                    break;
+                case 3:
+                    viewReservations(currentUser.getUsername());
+                    break;
+                case 4:
+                    System.out.println("Thank you for using the system!");
+                    System.exit(0);
+                    break;
+                default:
+                    System.out.println("Invalid choice. Try again.");
+            }
+        }
+    }
+
+    static void reserveTicket(String username) {
+        System.out.print("Enter Train Number: ");
+        String trainNo = sc.nextLine();
+
+        if (!trainData.containsKey(trainNo)) {
+            System.out.println("Invalid train number. Reservation failed.");
+            return;
+        }
+
+        String trainName = trainData.get(trainNo);
+        System.out.println("Train Name: " + trainName);
+
+        System.out.print("Enter Class Type (e.g. Sleeper, AC): ");
+        String classType = sc.nextLine();
+
+        System.out.print("Enter Date of Journey (YYYY-MM-DD): ");
+        String dateInput = sc.nextLine();
+        LocalDate dateOfJourney;
+        try {
+            dateOfJourney = LocalDate.parse(dateInput);
+        } catch (DateTimeParseException e) {
+            System.out.println("Invalid date format. Reservation failed.");
+            return;
+        }
+
+        System.out.print("From: ");
+        String from = sc.nextLine();
+        System.out.print("To: ");
+        String to = sc.nextLine();
+
+        Reservation r = new Reservation(username, trainNo, trainName, classType, dateOfJourney, from, to);
+        reservations.put(r.getPnr(), r);
+        System.out.println("Reservation successful! Your PNR: " + r.getPnr());
+    }
+
+    static void cancelTicket(String username) {
+        System.out.print("Enter PNR Number to Cancel: ");
+        int pnr = Integer.parseInt(sc.nextLine());
+        Reservation r = reservations.get(pnr);
+        if (r != null && r.getUsername().equals(username)) {
+            System.out.println("Reservation Details: " + r);
+            System.out.print("Confirm cancellation? (y): ");
+            String confirm = sc.nextLine();
+            if (confirm.equalsIgnoreCase("yes")) {
+                reservations.remove(pnr);
+                System.out.println("Reservation cancelled successfully.");
+            } else {
+                System.out.println("Cancellation aborted.");
+            }
+        } else {
+            System.out.println("No reservation found with this PNR for your account.");
+        }
+    }
+
+    static void viewReservations(String username) {
+        boolean found = false;
+        for (Reservation r : reservations.values()) {
+            if (r.getUsername().equals(username)) {
+                System.out.println(r);
+                found = true;
+            }
+        }
+        if (!found) {
+            System.out.println("No reservations found.");
+        }
+    }
+}
