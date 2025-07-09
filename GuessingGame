@@ -1,0 +1,62 @@
+import java.util.Scanner;
+import java.util.Random;
+
+public class Guessing_game {
+
+    public static void main(String[] args) {
+        Scanner User = new Scanner(System.in);
+        Random numGenerate = new Random();
+
+        int TotalScore = 0;
+        int current = 1;
+        String userChoice;
+        System.out.println("The Guessing Game :)");
+        System.out.println("Guess the Number:");
+
+        do {
+            int randomNum = numGenerate.nextInt(100) + 1; 
+            int attempts = 0;
+            int max = 10;
+            boolean CorrectlyGuessed = false;
+
+            System.out.println();
+            System.out.println("Round " + current + ": You've have to guess the number between 1 and 100 :)");
+            System.out.println("You have " + max + " Attempts.");
+
+            while (attempts < max) {
+                System.out.print("Enter your guess: ");
+                int UserGuess = User.nextInt();
+                attempts++;
+
+                if (UserGuess == randomNum) {
+                    System.out.println("You have guessed the number in " + attempts + " tries.");
+
+                    int scoreForThisRound = (max - attempts + 1) * 10;
+                    System.out.println("You  have Scored " + scoreForThisRound + " points this time.");
+                    TotalScore += scoreForThisRound;
+
+                    CorrectlyGuessed = true;
+                    break;
+                } else if (UserGuess < randomNum) {
+                    System.out.println("Guess is too low.");
+                } else {
+                    System.out.println("Guess is too high.");
+                }
+            }
+
+            if (!CorrectlyGuessed) {
+                System.out.println("All Attempts are over. The correct number was: " + randomNum +":(");
+            }
+
+            System.out.print("Do you want to play another round? (yes or no): ");
+            userChoice = User.next().toLowerCase();
+            current++;
+
+        } while (userChoice.equals("yes"));
+
+        System.out.println();
+        System.out.println("Game Over:(");
+        System.out.println("Total score : " + TotalScore);
+        User.close();
+    }
+}
