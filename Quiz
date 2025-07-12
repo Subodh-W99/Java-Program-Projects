@@ -1,0 +1,137 @@
+import java.util.*;
+
+public class Quiz {
+    static Scanner input = new Scanner(System.in);
+    static String savedUsername = "Subodh Wasade";
+    static String savedPassword = "subodh@123";
+    static String savedEmail = "subodhwasade99@gmail.com";
+    static boolean isLoggedIn = false;
+
+    public static void main(String[] args) {
+        while (true) {
+            if (!isLoggedIn) {
+                showLoginMenu();
+            } else {
+                showMainMenu();
+            }
+        }
+    }
+
+    static void showLoginMenu() {
+        System.out.println("=== Welcome to Quiz App ===");
+        System.out.println("1. Login");
+        System.out.println("0. Exit");
+        System.out.print("Choose an option: ");
+        String choice = input.nextLine();
+
+        switch (choice) {
+            case "1":
+                System.out.print("Username: ");
+                String username = input.nextLine();
+                System.out.print("Password: ");
+                String password = input.nextLine();
+
+                if (username.equals(savedUsername) && password.equals(savedPassword)) {
+                    System.out.println("Logged in successfully!\n");
+                    isLoggedIn = true;
+                } else {
+                    System.out.println("Wrong username or password. Try again.\n");
+                }
+                break;
+            case "0":
+                System.out.println("Goodbye!");
+                System.exit(0);
+            default:
+                System.out.println("Please select a valid option.\n");
+        }
+    }
+
+    static void showMainMenu() {
+        System.out.println("\n--- Main Menu ---");
+        System.out.println("1. Take Quiz");
+        System.out.println("2. Logout");
+        System.out.print("Choose an option: ");
+        String choice = input.nextLine();
+
+        switch (choice) {
+            case "1":
+                startQuiz();
+                break;
+            case "2":
+                logout();
+                break;
+            default:
+                System.out.println("Please select a valid option.");
+        }
+    }
+
+    static void logout() {
+        isLoggedIn = false;
+        System.out.println("You have been logged out.\n");
+    }
+
+    static void startQuiz() {
+        System.out.println("\nStarting the quiz. You have 30 seconds to complete it!");
+
+        String[] questions = {
+            "1. What is the capital of Japan?",
+            "2. Java is built by?",
+            "3. What is 5 + 10?"
+        };
+
+        String[][] options = {
+            {"A. Tokyo", "B. Kyoto", "C. Osaka", "D. Nagoya"},
+            {"A. James Gosling", "B. Dennis Ritchie", "C. Guido Van Rossum", "D. Linus Torvalds"},
+            {"A. 10", "B. 15", "C. 20", "D. 5"}
+        };
+
+        char[] correctAnswers = {'A', 'A', 'B'};
+        char[] userAnswers = new char[questions.length];
+
+        long startTime = System.currentTimeMillis();
+        long timeLimit = 30 * 1000; //30 sec
+
+        for (int i = 0; i < questions.length; i++) {
+            long currentTime = System.currentTimeMillis();
+            if (currentTime - startTime > timeLimit) {
+                System.out.println("\n[!] Time is up! Auto-submitting your quiz...");
+                break;
+            }
+
+            System.out.println("\n" + questions[i]);
+            for (String option : options[i]) {
+                System.out.println(option);
+            }
+
+            System.out.print("Your answer (A/B/C/D): ");
+            String ans = input.nextLine().toUpperCase();
+            if (ans.length() > 0 && "ABCD".contains(ans)) {
+                userAnswers[i] = ans.charAt(0);
+            } else {
+                userAnswers[i] = ' ';
+            }
+        }
+
+        showResult(userAnswers, correctAnswers);
+    }
+
+    static void showResult(char[] userAnswers, char[] correctAnswers) {
+        int score = 0;
+        System.out.println("\n--- Quiz Result ---");
+        for (int i = 0; i < correctAnswers.length; i++) {
+            if (userAnswers[i] != '\0' && userAnswers[i] == correctAnswers[i]) {
+                score++;
+            }
+        }
+
+        System.out.println("[✓] You got " + score + " out of " + correctAnswers.length + " correct.");
+        if (score == correctAnswers.length) {
+            System.out.println("Excellent! Full score!");
+        } else if (score >= 2) {
+            System.out.println("Good job!");
+        } else {
+            System.out.println("Keep practicing!");
+        }
+        System.out.println();
+    }
+}
